@@ -417,6 +417,7 @@
       "Lámpara es a mis pies tu palabra,<br>y lumbrera a mi camino."
       <span>— Salmos 119:105</span>
     </p>
+    <div id="loading-indicator" style="display:none; color:var(--gold); font-size:0.9rem; margin:20px 0; text-align:center;">⏳ Cargando Biblia...</div>
     <button class="btn-cover" onclick="openApp()">Abrir ✦</button>
   </div>
 </div>
@@ -893,6 +894,10 @@ let isBibleLoaded = false;
 //  NAVIGATION
 // ═══════════════════════════════════════════════════════
 function openApp() {
+  if (!isBibleLoaded) {
+    alert('⏳ Aún cargando la Biblia...\n\nPor favor espera a que termine la carga.');
+    return;
+  }
   navigate('home');
 }
 
@@ -1433,6 +1438,9 @@ function showSearch() {
 updateFavBadge();
 currentDayIndex = new Date().getDay();
 
+// Mostrar indicador de carga
+document.getElementById('loading-indicator').style.display = 'block';
+
 // Cargar Biblia JSON al iniciar
 (async () => {
   console.log('Iniciando carga de Biblia.json...');
@@ -1440,11 +1448,14 @@ currentDayIndex = new Date().getDay();
   if (success) {
     isBibleLoaded = true;
     console.log('✓ Biblia cargada exitosamente');
+    // Ocultar indicador de carga
+    document.getElementById('loading-indicator').style.display = 'none';
     if (currentView === 'reader') {
       renderReader();
     }
   } else {
     console.error('Error: No se pudo cargar Biblia.json');
+    document.getElementById('loading-indicator').innerHTML = '❌ Error al cargar';
     alert('⚠ Error al cargar Biblia.json\n\nVerifica que:\n1. El archivo "Biblia.json" esté en la misma carpeta\n2. Nombrado correctamente (con mayúscula)');
   }
 })();
