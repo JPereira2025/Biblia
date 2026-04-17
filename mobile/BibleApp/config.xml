@@ -1,22 +1,28 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.example.bibleapp" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>Biblia</name>
+<widget id="com.jorgepereira.biblia60" version="1.0.0" android-versionCode="1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Santa Biblia Reina Valera 1960</name>
     <description>
-        Aplicación de la Biblia empaquetada con Cordova.
+        La Santa Biblia Reina Valera 1960 en tu dispositivo móvil. Lee, estudia y medita en la Palabra de Dios con una interfaz hermosa y fácil de usar. Incluye todas las versiones digitales de la Biblia, marcadores, búsqueda y más funciones.
     </description>
-    <author email="dev@cordova.apache.org" href="https://cordova.apache.org">
-        Apache Cordova Team
+    <author email="jorge.alb.pereira@gmail.com" href="https://github.com/JPereira2025/Biblia">
+        Jorge Pereira
     </author>
-    <content src="santa-biblia_html(1).html" />
+    <content src="index.html" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
     <platform name="android">
         <preference name="GradleVersion" value="9.3.1" />
+        <preference name="android-targetSdkVersion" value="34" />
+        <preference name="android-minSdkVersion" value="21" />
         <icon src="www/img/app_icon.png" density="ldpi" />
         <icon src="www/img/app_icon.png" density="mdpi" />
         <icon src="www/img/app_icon.png" density="hdpi" />
         <icon src="www/img/app_icon.png" density="xhdpi" />
         <icon src="www/img/app_icon.png" density="xxhdpi" />
         <icon src="www/img/app_icon.png" density="xxxhdpi" />
+
+        <!-- Iconos Adaptativos -->
+        <resource-file src="www/img/app_icon.png" target="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" />
+        <resource-file src="www/img/app_icon.png" target="app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" />
     </platform>
 </widget>
