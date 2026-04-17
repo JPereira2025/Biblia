@@ -1,0 +1,33 @@
+# Node modules
+node_modules/
+npm-debug.log
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.egg-info/
+
+# Gradle
+.gradle/
+build/
+*.apk
+*.aab
+
+# Android
+local.properties
+**/obj/
+**/bin/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+platform_www/
