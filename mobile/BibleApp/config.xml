@@ -1,28 +1,36 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.jorgepereira.biblia60" version="1.0.0" android-versionCode="1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>Santa Biblia Reina Valera 1960</name>
+    <widget id="com.jorgepereira.biblia60" version="1.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Reina Valera 1960</name>
     <description>
-        La Santa Biblia Reina Valera 1960 en tu dispositivo móvil. Lee, estudia y medita en la Palabra de Dios con una interfaz hermosa y fácil de usar. Incluye todas las versiones digitales de la Biblia, marcadores, búsqueda y más funciones.
+        Aplicación de la Biblia Reina Valera 1960 empaquetada con Cordova.
     </description>
-    <author email="jorge.alb.pereira@gmail.com" href="https://github.com/JPereira2025/Biblia">
+    <author email="jorge.alb.pereira@gmail.com" href="https://github.com/JPereira2025">
         Jorge Pereira
     </author>
     <content src="index.html" />
+    <access origin="*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
-    <platform name="android">
-        <preference name="GradleVersion" value="9.3.1" />
-        <preference name="android-targetSdkVersion" value="34" />
-        <preference name="android-minSdkVersion" value="21" />
-        <icon src="www/img/app_icon.png" density="ldpi" />
-        <icon src="www/img/app_icon.png" density="mdpi" />
-        <icon src="www/img/app_icon.png" density="hdpi" />
-        <icon src="www/img/app_icon.png" density="xhdpi" />
-        <icon src="www/img/app_icon.png" density="xxhdpi" />
-        <icon src="www/img/app_icon.png" density="xxxhdpi" />
+    <allow-intent href="tel:*" />
+    <allow-intent href="sms:*" />
+    <allow-intent href="mailto:*" />
+    <allow-intent href="geo:*" />
 
-        <!-- Iconos Adaptativos -->
-        <resource-file src="www/img/app_icon.png" target="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" />
-        <resource-file src="www/img/app_icon.png" target="app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" />
+    <platform name="android">
+        <allow-intent href="market:*" />
+        <icon src="www/img/app_icon.png" />
+        <!-- Iconos Adaptativos para Android Moderno -->
+        <icon background="#fdf6e3" density="ldpi" foreground="www/img/app_icon.png" />
+        <icon background="#fdf6e3" density="mdpi" foreground="www/img/app_icon.png" />
+        <icon background="#fdf6e3" density="hdpi" foreground="www/img/app_icon.png" />
+        <icon background="#fdf6e3" density="xhdpi" foreground="www/img/app_icon.png" />
+        <icon background="#fdf6e3" density="xxhdpi" foreground="www/img/app_icon.png" />
+        <icon background="#fdf6e3" density="xxxhdpi" foreground="www/img/app_icon.png" />
+
+        <preference name="AndroidWindowSplashScreenAnimatedIcon" value="www/img/app_icon.png" />
+        <preference name="AndroidWindowSplashScreenBackground" value="#fdf6e3" />
     </platform>
+
+    <preference name="KeepRunning" value="true" />
+    <preference name="ShowSplashScreenSpinner" value="false" />
 </widget>
