@@ -389,10 +389,53 @@
   .search-bar input::placeholder { color:rgba(201,168,76,0.4); }
   .search-bar span { color:rgba(201,168,76,0.5); }
 
-  /* ─── RESPONSIVE ─── */
-  @media (min-width:600px) {
-    .cards-grid { grid-template-columns:repeat(3,1fr); }
-    .content { max-width:680px; }
+  /* ─── SEARCH MODAL ─── */
+  .search-modal {
+    position:fixed; top:0; left:0; right:0; bottom:0;
+    background:rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center;
+    z-index:1000; opacity:0; pointer-events:none; transition:opacity 0.3s;
+  }
+  .search-modal.active { opacity:1; pointer-events:all; }
+  .search-modal-content {
+    background:var(--dark); border:2px solid var(--gold); border-radius:8px;
+    padding:20px; width:90%; max-width:400px; max-height:80vh; overflow-y:auto;
+  }
+  .search-modal h3 { color:var(--gold); margin:0 0 15px 0; text-align:center; }
+  .search-form { display:flex; flex-direction:column; gap:10px; }
+  .search-form input, .search-form select {
+    padding:8px; border:1px solid rgba(201,168,76,0.3); border-radius:4px;
+    background:var(--dark2); color:var(--cream); font-family:Georgia,serif;
+  }
+  .search-form .search-row { display:flex; gap:10px; }
+  .search-form .search-row input { flex:1; }
+  .search-form button {
+    background:var(--gold); color:var(--dark); border:none; padding:10px;
+    border-radius:4px; cursor:pointer; font-family:Georgia,serif; font-weight:bold;
+  }
+  .search-results { margin-top:15px; max-height:200px; overflow-y:auto; }
+  .search-result {
+    padding:8px; border-bottom:1px solid rgba(201,168,76,0.2); cursor:pointer;
+    transition:background 0.2s;
+  }
+  .search-result:hover { background:rgba(201,168,76,0.1); }
+  .search-result-ref { color:var(--gold); font-weight:bold; }
+  .search-result-text { color:var(--cream); font-size:0.9rem; margin-top:2px; }
+
+  /* ─── VOICE CONTROLS ─── */
+  .voice-controls {
+    position:fixed; bottom:120px; right:20px; background:var(--dark);
+    border:2px solid var(--gold); border-radius:8px; padding:15px;
+    display:none; flex-direction:column; gap:10px; z-index:999;
+  }
+  .voice-controls.active { display:flex; }
+  .voice-controls h4 { color:var(--gold); margin:0; font-size:0.9rem; }
+  .voice-controls button {
+    background:var(--gold); color:var(--dark); border:none; padding:8px 12px;
+    border-radius:4px; cursor:pointer; font-family:Georgia,serif; font-size:0.8rem;
+  }
+  .voice-controls select {
+    padding:6px; border:1px solid rgba(201,168,76,0.3); border-radius:4px;
+    background:var(--dark2); color:var(--cream); font-family:Georgia,serif; font-size:0.8rem;
   }
 </style>
 </head>
@@ -429,7 +472,7 @@
       <span class="nav-logo-cross">✝</span>
       <span class="nav-logo-title">Santa Biblia</span>
       <div class="nav-logo-right">
-        <button class="nav-icon-btn" title="Buscar" onclick="showSearch()">🔍</button>
+        <button class="nav-icon-btn" title="Buscar" onclick="showSearchModal()">🔍</button>
       </div>
     </div>
   </div>
@@ -480,6 +523,8 @@
       <span class="nav-logo-cross">✝</span>
       <span class="nav-logo-title" id="reader-header-title">Génesis 1</span>
       <div class="nav-logo-right">
+        <button class="nav-icon-btn" title="Buscar" onclick="showSearchModal()">🔍</button>
+        <button class="nav-icon-btn" title="Voz" onclick="toggleVoiceControls()">🔊</button>
         <button class="nav-icon-btn" onclick="prevChapter()">‹</button>
         <button class="nav-icon-btn" onclick="nextChapter()">›</button>
       </div>
@@ -589,6 +634,107 @@
     <button class="bb-btn" onclick="navigate('special')"><span class="bb-icon">🙏</span>Especial</button>
     <button class="bb-btn active" onclick="navigate('favorites')"><span class="bb-icon">⭐</span>Favoritos</button>
   </div>
+</div>
+
+<!-- ═══════════ SEARCH MODAL ═══════════ -->
+<div id="search-modal" class="search-modal">
+  <div class="search-modal-content">
+    <h3>🔍 Buscar en la Biblia</h3>
+    <form class="search-form" onsubmit="performSearch(event)">
+      <div class="search-row">
+        <input type="text" id="search-book" placeholder="Libro (ej: Juan)" list="books-list">
+        <input type="number" id="search-chapter" placeholder="Capítulo" min="1">
+        <input type="number" id="search-verse" placeholder="Versículo" min="1">
+      </div>
+      <input type="text" id="search-text" placeholder="Buscar texto (ej: amor, fe, Dios)">
+      <button type="submit">Buscar</button>
+    </form>
+    <datalist id="books-list">
+      <option value="Génesis">
+      <option value="Éxodo">
+      <option value="Levítico">
+      <option value="Números">
+      <option value="Deuteronomio">
+      <option value="Josué">
+      <option value="Jueces">
+      <option value="Rut">
+      <option value="1 Samuel">
+      <option value="2 Samuel">
+      <option value="1 Reyes">
+      <option value="2 Reyes">
+      <option value="1 Crónicas">
+      <option value="2 Crónicas">
+      <option value="Esdras">
+      <option value="Nehemías">
+      <option value="Ester">
+      <option value="Job">
+      <option value="Salmos">
+      <option value="Proverbios">
+      <option value="Eclesiastés">
+      <option value="Cantares">
+      <option value="Isaías">
+      <option value="Jeremías">
+      <option value="Lamentaciones">
+      <option value="Ezequiel">
+      <option value="Daniel">
+      <option value="Oseas">
+      <option value="Joel">
+      <option value="Amós">
+      <option value="Abdías">
+      <option value="Jonás">
+      <option value="Miqueas">
+      <option value="Nahúm">
+      <option value="Habacuc">
+      <option value="Sofonías">
+      <option value="Hageo">
+      <option value="Zacarías">
+      <option value="Malaquías">
+      <option value="Mateo">
+      <option value="Marcos">
+      <option value="Lucas">
+      <option value="Juan">
+      <option value="Hechos">
+      <option value="Romanos">
+      <option value="1 Corintios">
+      <option value="2 Corintios">
+      <option value="Gálatas">
+      <option value="Efesios">
+      <option value="Filipenses">
+      <option value="Colosenses">
+      <option value="1 Tesalonicenses">
+      <option value="2 Tesalonicenses">
+      <option value="1 Timoteo">
+      <option value="2 Timoteo">
+      <option value="Tito">
+      <option value="Filemón">
+      <option value="Hebreos">
+      <option value="Santiago">
+      <option value="1 Pedro">
+      <option value="2 Pedro">
+      <option value="1 Juan">
+      <option value="2 Juan">
+      <option value="3 Juan">
+      <option value="Judas">
+      <option value="Apocalipsis">
+    </datalist>
+    <div id="search-results" class="search-results"></div>
+  </div>
+</div>
+
+<!-- ═══════════ VOICE CONTROLS ═══════════ -->
+<div id="voice-controls" class="voice-controls">
+  <h4>🔊 Lectura en Voz Alta</h4>
+  <select id="voice-speed" onchange="setVoiceSpeed(this.value)">
+    <option value="0.5">Lento (0.5x)</option>
+    <option value="0.75">Moderado Lento (0.75x)</option>
+    <option value="1" selected>Normal (1x)</option>
+    <option value="1.25">Moderado Rápido (1.25x)</option>
+    <option value="1.5">Rápido (1.5x)</option>
+    <option value="2">Muy Rápido (2x)</option>
+  </select>
+  <button onclick="speakChapter()">Leer Capítulo</button>
+  <button onclick="speakVerse()">Leer Versículo</button>
+  <button onclick="stopSpeaking()">Detener</button>
 </div>
 
 <div id="toast">✦ Añadido a favoritos</div>
@@ -1441,58 +1587,227 @@ function showToast(msg) {
 }
 
 // ═══════════════════════════════════════════════════════
-//  SEARCH (improved with full Bible)
+//  VOICE SYNTHESIS
 // ═══════════════════════════════════════════════════════
-function showSearch() {
-  const query = prompt('🔍 Buscar versículo (ej: "Juan 3:16" o "amor"):');
-  if (!query) return;
-  const q = query.toLowerCase().trim();
+let speechSynthesis = window.speechSynthesis;
+let currentUtterance = null;
+let voiceSpeed = 1;
 
-  // Try to parse as reference
-  const refMatch = query.match(/^(.+?)\s+(\d+):(\d+)$/i);
-  if (refMatch) {
-    const b = ALL_BOOKS.find(b => b.toLowerCase().includes(refMatch[1].toLowerCase()));
-    if (b) {
-      currentBook = b;
-      currentChapter = parseInt(refMatch[2]);
-      navigate('reader');
-      setTimeout(() => {
-        const vEl = document.getElementById(`v-${b}-${currentChapter}-${refMatch[3]}`);
-        if (vEl) { vEl.style.background='rgba(201,168,76,0.15)'; vEl.scrollIntoView({behavior:'smooth',block:'center'}); }
-      }, 200);
-      return;
-    }
+function setVoiceSpeed(speed) {
+  voiceSpeed = parseFloat(speed);
+  if (currentUtterance) {
+    currentUtterance.rate = voiceSpeed;
+  }
+}
+
+function toggleVoiceControls() {
+  const controls = document.getElementById('voice-controls');
+  controls.classList.toggle('active');
+}
+
+function speakChapter() {
+  if (!speechSynthesis) {
+    alert('❌ Tu navegador no soporta síntesis de voz');
+    return;
   }
 
-  // Búsqueda de texto en toda la Biblia
-  const results = [];
-  if (BIBLE_RAW && BIBLE_RAW.length > 0) {
-    for (const entry of BIBLE_RAW) {
-      if (entry.Text.toLowerCase().includes(q)) {
+  stopSpeaking();
+
+  const chapterData = BIBLE_TEXT[currentBook]?.[currentChapter];
+  if (!chapterData) {
+    showToast('❌ Capítulo no encontrado');
+    return;
+  }
+
+  const text = Object.values(chapterData).join('. ');
+  const utterance = new SpeechSynthesisUtterance(`${currentBook} capítulo ${currentChapter}. ${text}`);
+  utterance.rate = voiceSpeed;
+  utterance.lang = 'es-ES'; // Español
+
+  utterance.onstart = () => showToast('🔊 Reproduciendo capítulo...');
+  utterance.onend = () => showToast('✅ Lectura terminada');
+
+  currentUtterance = utterance;
+  speechSynthesis.speak(utterance);
+}
+
+function speakVerse() {
+  if (!speechSynthesis) {
+    alert('❌ Tu navegador no soporta síntesis de voz');
+    return;
+  }
+
+  stopSpeaking();
+
+  // Buscar el versículo resaltado o el primero del capítulo
+  const highlighted = document.querySelector('.verse-container[style*="rgba(201,168,76,0.15)"]');
+  let verseNum = 1;
+  let verseText = '';
+
+  if (highlighted) {
+    const id = highlighted.id;
+    const match = id.match(/v-.*-.*-(\d+)$/);
+    if (match) verseNum = parseInt(match[1]);
+  }
+
+  const chapterData = BIBLE_TEXT[currentBook]?.[currentChapter];
+  if (chapterData && chapterData[verseNum]) {
+    verseText = chapterData[verseNum];
+  } else {
+    showToast('❌ Versículo no encontrado');
+    return;
+  }
+
+  const utterance = new SpeechSynthesisUtterance(`${currentBook} ${currentChapter}:${verseNum}. ${verseText}`);
+  utterance.rate = voiceSpeed;
+  utterance.lang = 'es-ES';
+
+  utterance.onstart = () => showToast('🔊 Reproduciendo versículo...');
+  utterance.onend = () => showToast('✅ Lectura terminada');
+
+  currentUtterance = utterance;
+  speechSynthesis.speak(utterance);
+}
+
+function stopSpeaking() {
+  if (speechSynthesis) {
+    speechSynthesis.cancel();
+    currentUtterance = null;
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  ENHANCED SEARCH
+// ═══════════════════════════════════════════════════════
+function showSearchModal() {
+  document.getElementById('search-modal').classList.add('active');
+  document.getElementById('search-book').focus();
+}
+
+function hideSearchModal() {
+  document.getElementById('search-modal').classList.remove('active');
+  document.getElementById('search-results').innerHTML = '';
+  // Limpiar campos
+  document.getElementById('search-book').value = '';
+  document.getElementById('search-chapter').value = '';
+  document.getElementById('search-verse').value = '';
+  document.getElementById('search-text').value = '';
+}
+
+function performSearch(event) {
+  event.preventDefault();
+
+  const bookInput = document.getElementById('search-book').value.trim();
+  const chapterInput = document.getElementById('search-chapter').value.trim();
+  const verseInput = document.getElementById('search-verse').value.trim();
+  const textInput = document.getElementById('search-text').value.trim();
+
+  let results = [];
+
+  // Búsqueda por referencia específica
+  if (bookInput && chapterInput && verseInput) {
+    const book = ALL_BOOKS.find(b => b.toLowerCase().includes(bookInput.toLowerCase()));
+    if (book) {
+      const chapter = parseInt(chapterInput);
+      const verse = parseInt(verseInput);
+      const chapterData = BIBLE_TEXT[book]?.[chapter];
+      if (chapterData && chapterData[verse]) {
         results.push({
-          book: entry.Book,
-          chapter: entry.Chapter,
-          verse: entry.Verse,
-          text: entry.Text
+          book: book,
+          chapter: chapter,
+          verse: verse,
+          text: chapterData[verse],
+          ref: `${book} ${chapter}:${verse}`
         });
-        if (results.length >= 20) break;  // Buscar hasta 20 resultados
+      }
+    }
+  }
+  // Búsqueda por libro y capítulo
+  else if (bookInput && chapterInput) {
+    const book = ALL_BOOKS.find(b => b.toLowerCase().includes(bookInput.toLowerCase()));
+    if (book) {
+      const chapter = parseInt(chapterInput);
+      const chapterData = BIBLE_TEXT[book]?.[chapter];
+      if (chapterData) {
+        Object.entries(chapterData).forEach(([verse, text]) => {
+          results.push({
+            book: book,
+            chapter: chapter,
+            verse: parseInt(verse),
+            text: text,
+            ref: `${book} ${chapter}:${verse}`
+          });
+        });
+      }
+    }
+  }
+  // Búsqueda por texto
+  else if (textInput) {
+    const query = textInput.toLowerCase();
+    if (BIBLE_RAW && BIBLE_RAW.length > 0) {
+      for (const entry of BIBLE_RAW) {
+        if (entry.Text.toLowerCase().includes(query)) {
+          results.push({
+            book: entry.Book,
+            chapter: entry.Chapter,
+            verse: entry.Verse,
+            text: entry.Text,
+            ref: `${entry.Book} ${entry.Chapter}:${entry.Verse}`
+          });
+          if (results.length >= 50) break; // Limitar resultados
+        }
       }
     }
   }
 
-  if (results.length > 0) {
-    const first = results[0];
-    currentBook = first.book;
-    currentChapter = first.chapter;
-    navigate('reader');
-    showToast(`✦ ${results.length} resultado(s) encontrado(s) - Mostrando el primero`);
-    setTimeout(() => {
-      const vEl = document.getElementById(`v-${first.book}-${first.chapter}-${first.verse}`);
-      if (vEl) { vEl.style.background='rgba(201,168,76,0.15)'; vEl.scrollIntoView({behavior:'smooth',block:'center'}); }
-    }, 200);
-  } else {
-    alert('No se encontraron resultados para: "' + query + '"');
+  displaySearchResults(results);
+}
+
+function displaySearchResults(results) {
+  const container = document.getElementById('search-results');
+
+  if (results.length === 0) {
+    container.innerHTML = '<div class="search-result" style="text-align:center; color:#888;">No se encontraron resultados</div>';
+    return;
   }
+
+  container.innerHTML = results.map(result => `
+    <div class="search-result" onclick="goToVerse('${result.book}', ${result.chapter}, ${result.verse})">
+      <div class="search-result-ref">${result.ref}</div>
+      <div class="search-result-text">${result.text}</div>
+    </div>
+  `).join('');
+}
+
+function goToVerse(book, chapter, verse) {
+  currentBook = book;
+  currentChapter = chapter;
+  navigate('reader');
+  hideSearchModal();
+
+  setTimeout(() => {
+    const verseEl = document.getElementById(`v-${book}-${chapter}-${verse}`);
+    if (verseEl) {
+      verseEl.style.background = 'rgba(201,168,76,0.15)';
+      verseEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => verseEl.style.background = '', 3000);
+    }
+  }, 200);
+}
+
+// Cerrar modal al hacer clic fuera
+document.addEventListener('click', (e) => {
+  const modal = document.getElementById('search-modal');
+  if (e.target === modal) {
+    hideSearchModal();
+  }
+});
+
+// ═══════════════════════════════════════════════════════
+//  SEARCH (improved with full Bible)
+// ═══════════════════════════════════════════════════════
+function showSearch() {
+  showSearchModal();
 }
 
 // ═══════════════════════════════════════════════════════
