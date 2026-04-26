@@ -417,8 +417,8 @@
       "Lámpara es a mis pies tu palabra,<br>y lumbrera a mi camino."
       <span>— Salmos 119:105</span>
     </p>
-    <div id="loading-indicator" style="display:none; color:var(--gold); font-size:0.9rem; margin:20px 0; text-align:center;">⏳ Cargando Biblia...</div>
-    <button class="btn-cover" onclick="openApp()">Abrir ✦</button>
+    <div id="loading-indicator" style="display:block; color:var(--gold); font-size:0.9rem; margin:20px 0; text-align:center;">⏳ Cargando Biblia...</div>
+    <button class="btn-cover" id="open-btn" onclick="openApp()" disabled>Abrir ✦</button>
   </div>
 </div>
 
@@ -616,15 +616,12 @@ let BIBLE_RAW = [];
 // ═══════════════════════════════════════════════════════
 async function loadBible() {
   try {
-    // Si BIBLE_DATA ya fue cargado desde Biblia.js, lo usamos directamente
-    if (typeof BIBLE_DATA !== 'undefined' && BIBLE_DATA) {
-      console.log('✓ Cargando desde Biblia.js (Modo compatible)');
-      BIBLE_RAW = BIBLE_DATA;
-    } else {
-      // Fallback por si acaso falla el script tag
-      const response = await fetch('Biblia.json');
-      BIBLE_RAW = await response.json();
+    if (typeof BIBLE_DATA === 'undefined' || !BIBLE_DATA) {
+      throw new Error('Biblia.js no cargado correctamente');
     }
+
+    console.log('✓ Cargando desde Biblia.js');
+    BIBLE_RAW = BIBLE_DATA;
 
     // Reorganizar datos: BIBLE_TEXT[book][chapter][verse] = text
     for (const entry of BIBLE_RAW) {
@@ -645,8 +642,8 @@ async function loadBible() {
     }
     return true;
   } catch (error) {
-    console.error('Error cargando base de datos:', error);
-    alert("⚠️ Error al cargar los datos de la Biblia.\n\nSi estás en PC:\n1. Asegúrate de que el archivo 'Biblia.js' esté en la misma carpeta.\n2. Prueba usando Firefox si Edge/Chrome siguen bloqueando el acceso.");
+    console.error('Error cargando Biblia.js:', error);
+    alert("⚠️ Error al cargar Biblia.js.\n\nAsegúrate de que el archivo 'Biblia.js' esté en la misma carpeta y que el servidor lo esté sirviendo correctamente.");
     return false;
   }
 }
@@ -888,13 +885,60 @@ try {
   favorites = [];
 }
 let currentDayIndex = new Date().getDay();
+
+// ═══════════════════════════════════════════════════════
+//  SWIPE DETECTION
+// ═══════════════════════════════════════════════════════
+let touchStartX = 0;
+let touchStartY = 0;
+let touchEndX = 0;
+let touchEndY = 0;
+
+function handleTouchStart(e) {
+  touchStartX = e.changedTouches[0].screenX;
+  touchStartY = e.changedTouches[0].screenY;
+}
+
+function handleTouchEnd(e) {
+  touchEndX = e.changedTouches[0].screenX;
+  touchEndY = e.changedTouches[0].screenY;
+  handleSwipe();
+}
+
+function handleMouseDown(e) {
+  touchStartX = e.screenX;
+  touchStartY = e.screenY;
+}
+
+function handleMouseUp(e) {
+  touchEndX = e.screenX;
+  touchEndY = e.screenY;
+  handleSwipe();
+}
+
+function handleSwipe() {
+  const deltaX = touchEndX - touchStartX;
+  const deltaY = touchEndY - touchStartY;
+  const minSwipeDistance = 50; // Minimum distance for swipe
+  const maxVerticalDistance = 100; // Max vertical movement to consider it horizontal
+
+  if (Math.abs(deltaX) > minSwipeDistance && Math.abs(deltaY) < maxVerticalDistance) {
+    if (deltaX > 0) {
+      // Swipe right - previous chapter
+      prevChapter();
+    } else {
+      // Swipe left - next chapter
+      nextChapter();
+    }
+  }
+}
 let isBibleLoaded = false;
 
 // ═══════════════════════════════════════════════════════
 //  NAVIGATION
 // ═══════════════════════════════════════════════════════
 function openApp() {
-  if (!isBibleLoaded) {
+  if (!isBibleLoaded || Object.keys(BIBLE_TEXT).length === 0) {
     alert('⏳ Aún cargando la Biblia...\n\nPor favor espera a que termine la carga.');
     return;
   }
@@ -977,6 +1021,15 @@ function renderChaptersNav() {
 }
 
 function renderReader() {
+  // Remove existing swipe listeners to avoid duplicates
+  let readerContent = document.getElementById('reader-content');
+  if (readerContent) {
+    readerContent.removeEventListener('touchstart', handleTouchStart);
+    readerContent.removeEventListener('touchend', handleTouchEnd);
+    readerContent.removeEventListener('mousedown', handleMouseDown);
+    readerContent.removeEventListener('mouseup', handleMouseUp);
+  }
+
   renderBookNav();
   renderChaptersNav();
   document.getElementById('reader-header-title').textContent = `${currentBook} ${currentChapter}`;
@@ -1035,6 +1088,16 @@ function renderReader() {
     document.body.scrollTop = 0;
     document.documentElement.scrollTop = 0;
   }, 50);
+
+  // Add swipe event listeners
+  readerContent = document.getElementById('reader-content');
+  if (readerContent) {
+    readerContent.addEventListener('touchstart', handleTouchStart, { passive: true });
+    readerContent.addEventListener('touchend', handleTouchEnd, { passive: true });
+    // Also add mouse events for desktop testing
+    readerContent.addEventListener('mousedown', handleMouseDown);
+    readerContent.addEventListener('mouseup', handleMouseUp);
+  }
 }
 
 function prevChapter() {
@@ -1441,22 +1504,23 @@ currentDayIndex = new Date().getDay();
 // Mostrar indicador de carga
 document.getElementById('loading-indicator').style.display = 'block';
 
-// Cargar Biblia JSON al iniciar
+// Cargar Biblia.js al iniciar
 (async () => {
-  console.log('Iniciando carga de Biblia.json...');
+  console.log('Iniciando carga desde Biblia.js...');
   const success = await loadBible();
   if (success) {
     isBibleLoaded = true;
     console.log('✓ Biblia cargada exitosamente');
-    // Ocultar indicador de carga
+    // Ocultar indicador de carga y habilitar botón
     document.getElementById('loading-indicator').style.display = 'none';
+    document.getElementById('open-btn').disabled = false;
     if (currentView === 'reader') {
       renderReader();
     }
   } else {
-    console.error('Error: No se pudo cargar Biblia.json');
-    document.getElementById('loading-indicator').innerHTML = '❌ Error al cargar';
-    alert('⚠ Error al cargar Biblia.json\n\nVerifica que:\n1. El archivo "Biblia.json" esté en la misma carpeta\n2. Nombrado correctamente (con mayúscula)');
+    console.error('Error: No se pudo cargar Biblia.js');
+    document.getElementById('loading-indicator').innerHTML = '❌ Error al cargar Biblia.js';
+    alert('⚠ Error al cargar Biblia.js\n\nVerifica que:\n1. El archivo "Biblia.js" esté en la misma carpeta\n2. El servidor esté sirviendo el archivo correctamente');
   }
 })();
 </script>
